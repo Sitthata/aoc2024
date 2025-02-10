@@ -3,7 +3,7 @@ FILE_TEST = 'input_test.txt'
 
 class Solution1
   def build_grid
-    File.readlines(FILE_TEST).map do |line|
+    File.readlines(FILE_PATH).map do |line|
       line.chomp.upcase.chars
     end
   end
@@ -36,15 +36,11 @@ class Solution1
     row_count = grid.length
     col_count = grid[0].length
     row_i, col_i = get_starting_index(grid)
+    index_set = Set.new
     directions = { 'up' => [-1, 0], 'right' => [0, 1], 'down' => [1, 0], 'left' => [0, -1] }
     movement = 'up'
 
     loop do
-      # Check the current cell
-      current_cell = grid[row_i][col_i]
-      # Rotate if hitting an obstacle
-      movement = get_new_direction(movement) if current_cell == '#'
-
       # Compute next position
       d_row, d_col = directions[movement]
       next_row = row_i + d_row
@@ -53,12 +49,22 @@ class Solution1
       # Break if next position is out-of-bounds
       break if out_of_bounds?(next_row, next_col, row_count, col_count)
 
+      if grid[next_row][next_col] == "#"
+        movement = get_new_direction(movement)
+        # Recalculate next position with new direction
+        d_row, d_col = directions[movement]
+        next_row = row_i + d_row
+        next_col = col_i + d_col
+      end
+
+      break if out_of_bounds?(next_row, next_col, row_count, col_count)
+
       # Move to next position
       row_i = next_row
       col_i = next_col
+      index_set.add([row_i, col_i])
     end
-    puts row_i, col_i
-    grid[row_i][col_i]
+    index_set.count
   end
 end
 
